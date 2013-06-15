@@ -1,17 +1,23 @@
+//! Enable this for Double precision:
+//#pragma OPENCL EXTENSION cl_khr_fp64: enable
+
+#define ELEMENT_TYPE float
+
+
 __kernel void mul(
-    __global const double* A,
-    __global const double* B,
-    __global double* C,
+    __global const ELEMENT_TYPE* A,
+    __global const ELEMENT_TYPE* B,
+    __global ELEMENT_TYPE* C,
     long N)
 {
    int tx = get_local_id(0);
    int ty = get_local_id(1);
  
-   double value = 0;
+   ELEMENT_TYPE value = 0;
    for (long k = 0; k < N; ++k)
    {
-      double elementA = A[ty * N + k];
-      double elementB = B[k * N + tx];
+      ELEMENT_TYPE elementA = A[ty * N + k];
+      ELEMENT_TYPE elementB = B[k * N + tx];
       value += elementA * elementB;
    }
  

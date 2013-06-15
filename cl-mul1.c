@@ -1,14 +1,16 @@
 #include "timing.h"
 #include "cl-helper.h"
 
+#define ELEMENT_TYPE float
 
-void randomInit(double* data, int size)
+
+void randomInit(ELEMENT_TYPE* data, int size)
 {
   for (int i = 0; i < size; ++i)
     data[i] = rand() / (float)RAND_MAX;
 }
 
-void printMatrix(double* data, int n)
+void printMatrix(ELEMENT_TYPE* data, int n)
 {
   for(int i = 0; i < n*n; i++)
   {
@@ -18,6 +20,7 @@ void printMatrix(double* data, int n)
   }
   printf("\n");
 }
+
 
 int main(int argc, char **argv)
 {
@@ -51,11 +54,11 @@ int main(int argc, char **argv)
   // --------------------------------------------------------------------------
 
   cl_long sizeN = n*n;
-  double *a = (double *) malloc(sizeof(double) * sizeN);
+  ELEMENT_TYPE *a = (ELEMENT_TYPE *) malloc(sizeof(ELEMENT_TYPE) * sizeN);
   if (!a) { perror("alloc x"); abort(); }
-  double *b = (double *) malloc(sizeof(double) * sizeN);
+  ELEMENT_TYPE *b = (ELEMENT_TYPE *) malloc(sizeof(ELEMENT_TYPE) * sizeN);
   if (!b) { perror("alloc y"); abort(); }
-  double *c = (double *) malloc(sizeof(double) * sizeN);
+  ELEMENT_TYPE *c = (ELEMENT_TYPE *) malloc(sizeof(ELEMENT_TYPE) * sizeN);
   if (!c) { perror("alloc z"); abort(); }
 
   srand(2006);
@@ -67,15 +70,15 @@ int main(int argc, char **argv)
   // --------------------------------------------------------------------------
   cl_int status;
   cl_mem buf_a = clCreateBuffer(ctx, CL_MEM_READ_WRITE, 
-      sizeof(double) * sizeN, 0, &status);
+      sizeof(ELEMENT_TYPE) * sizeN, 0, &status);
   CHECK_CL_ERROR(status, "clCreateBuffer");
 
   cl_mem buf_b = clCreateBuffer(ctx, CL_MEM_READ_WRITE,
-      sizeof(double) * sizeN, 0, &status);
+      sizeof(ELEMENT_TYPE) * sizeN, 0, &status);
   CHECK_CL_ERROR(status, "clCreateBuffer");
 
   cl_mem buf_c = clCreateBuffer(ctx, CL_MEM_READ_WRITE,
-      sizeof(double) * sizeN, 0, &status);
+      sizeof(ELEMENT_TYPE) * sizeN, 0, &status);
   CHECK_CL_ERROR(status, "clCreateBuffer");
 
   // --------------------------------------------------------------------------
@@ -83,12 +86,12 @@ int main(int argc, char **argv)
   // --------------------------------------------------------------------------
   CALL_CL_GUARDED(clEnqueueWriteBuffer, (
         queue, buf_a, /*blocking*/ CL_TRUE, /*offset*/ 0,
-        sizeN * sizeof(double), a,
+        sizeN * sizeof(ELEMENT_TYPE), a,
         0, NULL, NULL));
 
   CALL_CL_GUARDED(clEnqueueWriteBuffer, (
         queue, buf_b, /*blocking*/ CL_TRUE, /*offset*/ 0,
-        sizeN * sizeof(double), b,
+        sizeN * sizeof(ELEMENT_TYPE), b,
         0, NULL, NULL));
 
   // --------------------------------------------------------------------------
@@ -121,14 +124,14 @@ int main(int argc, char **argv)
   double elapsed = timestamp_diff_in_seconds(time1,time2)/ntrips;
   printf("%f s\n", elapsed);
   printf("%f GB/s\n",
-      3*sizeN*sizeof(double)/1e9/elapsed);
+      3*sizeN*sizeof(ELEMENT_TYPE)/1e9/elapsed);
 
   // --------------------------------------------------------------------------
   // transfer back & check
   // --------------------------------------------------------------------------
   CALL_CL_GUARDED(clEnqueueReadBuffer, (
         queue, buf_c, /*blocking*/ CL_TRUE, /*offset*/ 0,
-        sizeN * sizeof(double), c,
+        sizeN * sizeof(ELEMENT_TYPE), c,
         0, NULL, NULL));
 
   printf("\nMatrix A\n");
