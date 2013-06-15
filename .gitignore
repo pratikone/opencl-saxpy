@@ -3,3 +3,4 @@
 a.out
 print-devices
 cl-demo
+bin/*

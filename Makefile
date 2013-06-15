@@ -1,6 +1,7 @@
-EXECUTABLES = cl-demo print-devices
+OUT_DIR = ./bin
+EXECUTABLES = cl-demo print-devices cl-mul1
 
-all: $(EXECUTABLES)
+all: $(EXECUTABLES:%=$(OUT_DIR)/%)
 
 ifdef OPENCL_INC
   CL_CFLAGS = -I$(OPENCL_INC)
@@ -10,11 +11,14 @@ ifdef OPENCL_LIB
   CL_LDFLAGS = -L$(OPENCL_LIB)
 endif
 
-print-devices: print-devices.c cl-helper.c
+$(OUT_DIR)/print-devices: print-devices.c cl-helper.c
 	gcc $(CL_CFLAGS) $(CL_LDFLAGS) -std=gnu99 -lrt -lOpenCL -o$@ $^
 
-cl-demo: cl-demo.c cl-helper.c
+$(OUT_DIR)/cl-demo: cl-demo.c cl-helper.c
+	gcc $(CL_CFLAGS) $(CL_LDFLAGS) -std=gnu99 -lrt -lOpenCL -o$@ $^
+
+$(OUT_DIR)/cl-mul1: cl-mul1.c cl-helper.c
 	gcc $(CL_CFLAGS) $(CL_LDFLAGS) -std=gnu99 -lrt -lOpenCL -o$@ $^
 
 clean:
-	rm -f $(EXECUTABLES) *.o
+	rm -f $(EXECUTABLES:%=$(OUT_DIR)/%) *.o
