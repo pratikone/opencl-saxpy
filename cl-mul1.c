@@ -1,36 +1,6 @@
 #include "timing.h"
+#include "main-helper.h"
 #include "cl-helper.h"
-
-#define ELEMENT_TYPE float
-
-
-void randomInit(ELEMENT_TYPE* data, int size)
-{
-  for (int i = 0; i < size; ++i)
-    data[i] = rand() / (float)RAND_MAX;
-}
-
-void printMatrix(ELEMENT_TYPE* data, int n)
-{
-  for(int i = 0; i < n*n; i++)
-  {
-    printf(" %.4f", data[i]);
-    if(((i + 1) % n) == 0)
-      printf(";\n");
-  }
-  printf("\n");
-}
-
-void testResult(const ELEMENT_TYPE* A, const ELEMENT_TYPE* B, const ELEMENT_TYPE* C, long N, long i, long j)
-{
-  ELEMENT_TYPE value = 0.0f;
-  for (long k = 0; k < N; ++k) {
-    ELEMENT_TYPE elementA = A[i * N + k];
-    ELEMENT_TYPE elementB = B[k * N + j];
-    value += elementA * elementB;
-  }
-  printf("  C[%3u][%3u] is %s\n", i, j, (C[i * N + j] == value) ? "OK :)" : "NOT OK!!!");
-}
 
 
 int main(int argc, char **argv)
@@ -75,6 +45,7 @@ int main(int argc, char **argv)
   srand(2006);
   randomInit(a, sizeN);
   randomInit(b, sizeN);
+  zeroInit(c, sizeN);
 
   // --------------------------------------------------------------------------
   // allocate device memory
