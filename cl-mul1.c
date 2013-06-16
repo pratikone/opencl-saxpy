@@ -21,6 +21,17 @@ void printMatrix(ELEMENT_TYPE* data, int n)
   printf("\n");
 }
 
+void testResult(const ELEMENT_TYPE* A, const ELEMENT_TYPE* B, const ELEMENT_TYPE* C, long N, long i, long j)
+{
+  ELEMENT_TYPE value = 0.0f;
+  for (long k = 0; k < N; ++k) {
+    ELEMENT_TYPE elementA = A[i * N + k];
+    ELEMENT_TYPE elementB = B[k * N + j];
+    value += elementA * elementB;
+  }
+  printf("  C[%3u][%3u] is %s\n", i, j, (C[i * N + j] == value) ? "OK :)" : "NOT OK!!!");
+}
+
 
 int main(int argc, char **argv)
 {
@@ -105,16 +116,12 @@ int main(int argc, char **argv)
 
   for (int trip = 0; trip < ntrips; ++trip)
   {
-    SET_4_KERNEL_ARGS(knl, buf_a, buf_b, buf_c, n);
-    // size_t ldim[] = { 128 };
-    // size_t gdim[] = { ((n + ldim[0] - 1)/ldim[0])*ldim[0] };
-    
-    size_t localWorkSize[]  = {n,n};
+    SET_3_KERNEL_ARGS(knl, buf_a, buf_b, buf_c);
     size_t globalWorkSize[] = {n,n};
     
     CALL_CL_GUARDED(clEnqueueNDRangeKernel,
         (queue, knl,
-         /*dimensions*/ 2, NULL, globalWorkSize, localWorkSize, //gdim, ldim,
+         /*dimensions*/ 2, NULL, globalWorkSize, NULL, //gdim, ldim,
          0, NULL, NULL));
   }
 
@@ -134,14 +141,23 @@ int main(int argc, char **argv)
         sizeN * sizeof(ELEMENT_TYPE), c,
         0, NULL, NULL));
 
-  printf("\nMatrix A\n");
-  printMatrix(a, n);
-  
-  printf("\nMatrix B\n");
-  printMatrix(b, n);
-  
-  printf("\nMatrix C = A · B\n");
-  printMatrix(c, n);
+  if (n < 30)
+  {
+    printf("\nMatrix A\n");
+    printMatrix(a, n);
+    
+    printf("\nMatrix B\n");
+    printMatrix(b, n);
+    
+    printf("\nMatrix C = A · B\n");
+    printMatrix(c, n);
+  }
+
+  printf("\nTesting some results:\n\n");
+  testResult(a,b,c,n,0,0);
+  testResult(a,b,c,n,n/2,n/2);
+  testResult(a,b,c,n,rand()%n,rand()%n);
+  testResult(a,b,c,n,n-1,n-1);
 
   // --------------------------------------------------------------------------
   // clean up
