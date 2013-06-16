@@ -1,5 +1,5 @@
 OUT_DIR = ./bin
-EXECUTABLES = cl-demo print-devices cl-mul1
+EXECUTABLES = cl-demo print-devices cl-mul0 cl-mul1
 
 all: $(EXECUTABLES:%=$(OUT_DIR)/%)
 
@@ -15,6 +15,9 @@ $(OUT_DIR)/print-devices: print-devices.c cl-helper.c
 	gcc $(CL_CFLAGS) $(CL_LDFLAGS) -std=gnu99 -lrt -lOpenCL -o$@ $^
 
 $(OUT_DIR)/cl-demo: cl-demo.c cl-helper.c
+	gcc $(CL_CFLAGS) $(CL_LDFLAGS) -std=gnu99 -lrt -lOpenCL -o$@ $^
+
+$(OUT_DIR)/cl-mul0: cl-mul0.c
 	gcc $(CL_CFLAGS) $(CL_LDFLAGS) -std=gnu99 -lrt -lOpenCL -o$@ $^
 
 $(OUT_DIR)/cl-mul1: cl-mul1.c cl-helper.c
