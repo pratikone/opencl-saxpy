@@ -40,7 +40,12 @@ void testResult(
     ELEMENT_TYPE elementB = B[k * N + j];
     value += elementA * elementB;
   }
-  printf("  C[%3u][%3u] is %s\n", (uint)i, (uint)j, (C[i * N + j] == value) ? "OK :)" : "NOT OK!!!");
+  printf("  C[%3u][%3u] is ",(uint)i, (uint)j);
+  if (C[i * N + j] == value)
+    printf("OK :)");
+  else
+    printf("NOT OK!!! expected be %f (was %f)", value, C[i * N + j]);
+  printf("\n");
 }
 
 #endif
