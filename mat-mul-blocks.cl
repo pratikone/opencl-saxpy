@@ -13,7 +13,7 @@
  * Device code.
  */
 
-#define BLOCK_SIZE 16
+#define BLOCK_SIZE 4
 
 #define AS(i, j) As[j + i * BLOCK_SIZE]
 #define BS(i, j) Bs[j + i * BLOCK_SIZE]

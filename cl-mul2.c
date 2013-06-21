@@ -141,6 +141,9 @@ int main(int argc, char **argv)
   CALL_CL_GUARDED(clReleaseKernel, (knl));
   CALL_CL_GUARDED(clReleaseCommandQueue, (queue));
   CALL_CL_GUARDED(clReleaseContext, (ctx));
+  free(a);
+  free(b);
+  free(c);
 
   return 0;
 }
