@@ -1,6 +1,7 @@
 #!/bin/bash
-N=400
+N=40
 T=10
+B=$((N/4))
 
 MEM=$(echo "$N*$N*4*3/1024/1024" | bc -l | awk '{printf "%08f\n", $0}')
 
@@ -9,6 +10,7 @@ make
 echo ""
 echo "==== Matrices size: ${N}x${N}"
 echo "---- Trip Count:    $T"
+echo "---- Block Size:    $B"
 echo "---- Memory Used:   $MEM MB"
 echo ""
 echo "!! Make CPU use Performance Governor for testing !!"
@@ -28,8 +30,7 @@ bin/cl-mul0-saxpy $N $T
 
 echo ""
 echo "----- 3) Multiplication using Blocks:"
-echo "TODO"
-#bin/cl-mul0-blocks $N $T
+bin/cl-mul0-blocks $N $T $B
 
 echo ""
 echo "----- 4) OpenCL Traditional Multiplication:"
