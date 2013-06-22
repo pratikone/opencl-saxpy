@@ -141,42 +141,27 @@ int main(int argc, char **argv)
   CALL_CL_GUARDED(clFinish, (queue));
 
   get_timestamp(&time2);
-  double elapsed = timestamp_diff_in_seconds(time1,time2)/ntrips;
-  printf("%f s\n", elapsed);
-  printf("%f GB/s\n",
-      3*sizeN*sizeof(ELEMENT_TYPE)/1e9/elapsed);
+  printStatistics(time1, time2, ntrips, n);
 
   // --------------------------------------------------------------------------
   // transfer back & check
   // --------------------------------------------------------------------------
-  CALL_CL_GUARDED(clEnqueueReadBuffer, (
-        queue, d_C, /*blocking*/ CL_TRUE, /*offset*/ 0,
-        uiWC * sizeof(ELEMENT_TYPE) * worksize,
-        h_C + workOffset * uiWC,
-        0, NULL, NULL));
 
-  // CALL_CL_GUARDED(clEnqueueReadBuffer, (
-  //       queue, buf_c, /*blocking*/ CL_TRUE, /*offset*/ 0,
-  //       sizeN * sizeof(ELEMENT_TYPE), c,
-  //       0, NULL, NULL));
-
-  if (n < 30)
+  if (! getenv("HIDE_CHECK_RESULTS"))
   {
-    printf("\nMatrix A\n");
-    printMatrix(h_A_data, n);
-    
-    printf("\nMatrix B\n");
-    printMatrix(h_B_data, n);
-    
-    printf("\nMatrix C = A · B\n");
-    printMatrix(h_C, n);
-  }
+    CALL_CL_GUARDED(clEnqueueReadBuffer, (
+          queue, d_C, /*blocking*/ CL_TRUE, /*offset*/ 0,
+          uiWC * sizeof(ELEMENT_TYPE) * worksize,
+          h_C + workOffset * uiWC,
+          0, NULL, NULL));
 
-  printf("\nTesting some results:\n\n");
-  testResult(h_A_data,h_B_data,h_C,n,0,0);
-  testResult(h_A_data,h_B_data,h_C,n,n/2,n/2);
-  testResult(h_A_data,h_B_data,h_C,n,rand()%n,rand()%n);
-  testResult(h_A_data,h_B_data,h_C,n,n-1,n-1);
+    // CALL_CL_GUARDED(clEnqueueReadBuffer, (
+    //       queue, buf_c, /*blocking*/ CL_TRUE, /*offset*/ 0,
+    //       sizeN * sizeof(ELEMENT_TYPE), c,
+    //       0, NULL, NULL));
+
+    printCheckResults(h_A_data,h_B_data,h_C,n);
+  }
 
   // --------------------------------------------------------------------------
   // clean up

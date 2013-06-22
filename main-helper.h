@@ -19,7 +19,15 @@ void zeroInit(ELEMENT_TYPE* data, size_t size)
     data[i] = 0.0f;
 }
 
-void printMatrix(ELEMENT_TYPE* data, size_t n)
+void printStatistics(const timestamp_type time1, const timestamp_type time2, int ntrips, size_t N)
+{
+  double elapsed = timestamp_diff_in_seconds(time1,time2)/ntrips;
+  printf("%12f s\n", elapsed);
+  printf("%12f MB/s\n",
+      3*N*N*sizeof(ELEMENT_TYPE)/1e6/elapsed);
+}
+
+void printMatrix(const ELEMENT_TYPE* data, size_t n)
 {
   for(size_t i = 0; i < n*n; i++)
   {
@@ -46,6 +54,27 @@ void testResult(
   else
     printf("NOT OK!!! expected be %f (was %f)", value, C[i * N + j]);
   printf("\n");
+}
+
+void printCheckResults(const ELEMENT_TYPE* a, const ELEMENT_TYPE* b, const ELEMENT_TYPE* c, size_t n)
+{
+  if (n < 30)
+  {
+    printf("\nMatrix A\n");
+    printMatrix(a, n);
+    
+    printf("\nMatrix B\n");
+    printMatrix(b, n);
+    
+    printf("\nMatrix C = A · B\n");
+    printMatrix(c, n);
+  }
+
+  printf("\nTesting some results:\n\n");
+  testResult(a,b,c,n,0,0);
+  testResult(a,b,c,n,n/2,n/2);
+  testResult(a,b,c,n,rand()%n,rand()%n);
+  testResult(a,b,c,n,n-1,n-1);
 }
 
 

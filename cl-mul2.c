@@ -89,8 +89,8 @@ int main(int argc, char **argv)
   {
     SET_3_KERNEL_ARGS(knl, buf_a, buf_b, buf_c);
     
+    size_t local[]  = {n,1};
     size_t global[] = {n,n};
-    size_t local[]  = {1,1};
     
     CALL_CL_GUARDED(clEnqueueNDRangeKernel,
         (queue, knl,
@@ -101,36 +101,21 @@ int main(int argc, char **argv)
   CALL_CL_GUARDED(clFinish, (queue));
 
   get_timestamp(&time2);
-  double elapsed = timestamp_diff_in_seconds(time1,time2)/ntrips;
-  printf("%f s\n", elapsed);
-  printf("%f GB/s\n",
-      3*sizeN*sizeof(ELEMENT_TYPE)/1e9/elapsed);
+  printStatistics(time1, time2, ntrips, n);
 
   // --------------------------------------------------------------------------
   // transfer back & check
   // --------------------------------------------------------------------------
-  CALL_CL_GUARDED(clEnqueueReadBuffer, (
-        queue, buf_c, /*blocking*/ CL_TRUE, /*offset*/ 0,
-        sizeN * sizeof(ELEMENT_TYPE), c,
-        0, NULL, NULL));
 
-  if (n < 30)
+  if (! getenv("HIDE_CHECK_RESULTS"))
   {
-    printf("\nMatrix A\n");
-    printMatrix(a, n);
-    
-    printf("\nMatrix B\n");
-    printMatrix(b, n);
-    
-    printf("\nMatrix C = A · B\n");
-    printMatrix(c, n);
-  }
+    CALL_CL_GUARDED(clEnqueueReadBuffer, (
+          queue, buf_c, /*blocking*/ CL_TRUE, /*offset*/ 0,
+          sizeN * sizeof(ELEMENT_TYPE), c,
+          0, NULL, NULL));
 
-  printf("\nTesting some results:\n\n");
-  testResult(a,b,c,n,0,0);
-  testResult(a,b,c,n,n/2,n/2);
-  testResult(a,b,c,n,rand()%n,rand()%n);
-  testResult(a,b,c,n,n-1,n-1);
+    printCheckResults(a,b,c,n);
+  }
 
   // --------------------------------------------------------------------------
   // clean up

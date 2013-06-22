@@ -83,32 +83,16 @@ int main(int argc, char **argv)
   }
 
   get_timestamp(&time2);
-  double elapsed = timestamp_diff_in_seconds(time1,time2)/ntrips;
-  printf("%f s\n", elapsed);
-  printf("%f GB/s\n",
-      3*sizeN*sizeof(ELEMENT_TYPE)/1e9/elapsed);
+  printStatistics(time1, time2, ntrips, n);
 
   // --------------------------------------------------------------------------
   // transfer back & check
   // --------------------------------------------------------------------------
 
-  if (n < 30)
+  if (! getenv("HIDE_CHECK_RESULTS"))
   {
-    printf("\nMatrix A\n");
-    printMatrix(a, n);
-    
-    printf("\nMatrix B\n");
-    printMatrix(b, n);
-    
-    printf("\nMatrix C = A · B\n");
-    printMatrix(c, n);
+    printCheckResults(a,b,c,n);
   }
-
-  printf("\nTesting some results:\n\n");
-  testResult(a,b,c,n,0,0);
-  testResult(a,b,c,n,n/2,n/2);
-  testResult(a,b,c,n,rand()%n,rand()%n);
-  testResult(a,b,c,n,n-1,n-1);
 
   // --------------------------------------------------------------------------
   // clean up

@@ -19,6 +19,7 @@ echo "-- Press Enter to Begin..."
 read
 
 export CL_HELPER_NO_COMPILER_OUTPUT_NAG=1
+export HIDE_CHECK_RESULTS=1
 
 echo ""
 echo "----- 1) Traditional Multiplication:"
