@@ -11,6 +11,7 @@ void randomInit(ELEMENT_TYPE* data, size_t size)
 {
   for (size_t i = 0; i < size; ++i)
     data[i] = rand() / (float)RAND_MAX;
+    // data[i] = (float)i/10;
 }
 
 void zeroInit(ELEMENT_TYPE* data, size_t size)
@@ -34,6 +35,8 @@ void printMatrix(const ELEMENT_TYPE* data, size_t n)
     printf(" %.4f", data[i]);
     if(((i + 1) % n) == 0)
       printf(";\n");
+    else
+      printf(",");
   }
   printf("\n");
 }

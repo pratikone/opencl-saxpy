@@ -39,8 +39,7 @@ bin/cl-mul1 $N $T
 
 echo ""
 echo "----- 5) OpenCL Multiplication using SAXPY:"
-echo "TODO"
-#bin/cl-mul2-saxpy $N $T
+bin/cl-mul2-saxpy $N $T
 
 echo ""
 echo "----- 6) OpenCL Multiplication using Blocks:"

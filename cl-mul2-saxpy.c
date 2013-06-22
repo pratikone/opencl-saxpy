@@ -85,13 +85,13 @@ int main(int argc, char **argv)
   timestamp_type time1, time2;
   get_timestamp(&time1);
 
-  for (int trip = 0; trip < ntrips; ++trip)
-  {
     SET_3_KERNEL_ARGS(knl, buf_a, buf_b, buf_c);
     
-    size_t local[]  = {n,1};
+    size_t local[]  = {1,1};
     size_t global[] = {n,n};
-    
+
+  for (int trip = 0; trip < ntrips; ++trip)
+  {
     CALL_CL_GUARDED(clEnqueueNDRangeKernel,
         (queue, knl,
          /*dimensions*/ 2, NULL, global, NULL,
