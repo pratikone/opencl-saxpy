@@ -1,6 +1,6 @@
 #!/bin/bash
 N=40
-T=10
+T=50
 B=$((N/4))
 
 MEM=$(echo "$N*$N*4*3/1024/1024" | bc -l | awk '{printf "%08f\n", $0}')
@@ -40,7 +40,7 @@ bin/cl-mul1 $N $T
 echo ""
 echo "----- 5) OpenCL Multiplication using SAXPY:"
 echo "TODO"
-#bin/cl-mul2 $N $T
+#bin/cl-mul2-saxpy $N $T
 
 echo ""
 echo "----- 6) OpenCL Multiplication using Blocks:"
