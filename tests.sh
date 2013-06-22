@@ -1,5 +1,8 @@
 #!/bin/bash
 N=40
+if [ ! -z $1 ]; then
+    N=$1
+fi
 T=50
 B=$((N/4))
 
