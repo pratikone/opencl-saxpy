@@ -28,6 +28,7 @@ int main(int argc, char **argv)
   // --------------------------------------------------------------------------
   char *knl_text = read_file("mat-mul-saxpy.cl");
   cl_kernel knl = kernel_from_string(ctx, knl_text, "mul", NULL);
+  cl_kernel knl_zero = kernel_from_string(ctx, knl_text, "zero", NULL);
   free(knl_text);
 
   // --------------------------------------------------------------------------
@@ -51,12 +52,12 @@ int main(int argc, char **argv)
   // allocate device memory
   // --------------------------------------------------------------------------
   cl_int status;
-  cl_mem buf_a = clCreateBuffer(ctx, CL_MEM_READ_WRITE, 
-      sizeof(ELEMENT_TYPE) * sizeN, 0, &status);
+  cl_mem buf_a = clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR, 
+      sizeof(ELEMENT_TYPE) * sizeN, a, &status);
   CHECK_CL_ERROR(status, "clCreateBuffer");
 
-  cl_mem buf_b = clCreateBuffer(ctx, CL_MEM_READ_WRITE,
-      sizeof(ELEMENT_TYPE) * sizeN, 0, &status);
+  cl_mem buf_b = clCreateBuffer(ctx, CL_MEM_READ_ONLY | CL_MEM_USE_HOST_PTR,
+      sizeof(ELEMENT_TYPE) * sizeN, b, &status);
   CHECK_CL_ERROR(status, "clCreateBuffer");
 
   cl_mem buf_c = clCreateBuffer(ctx, CL_MEM_READ_WRITE,
@@ -66,15 +67,15 @@ int main(int argc, char **argv)
   // --------------------------------------------------------------------------
   // transfer to device
   // --------------------------------------------------------------------------
-  CALL_CL_GUARDED(clEnqueueWriteBuffer, (
-        queue, buf_a, /*blocking*/ CL_TRUE, /*offset*/ 0,
-        sizeN * sizeof(ELEMENT_TYPE), a,
-        0, NULL, NULL));
+  // CALL_CL_GUARDED(clEnqueueWriteBuffer, (
+  //       queue, buf_a, /*blocking*/ CL_TRUE, /*offset*/ 0,
+  //       sizeN * sizeof(ELEMENT_TYPE), a,
+  //       0, NULL, NULL));
 
-  CALL_CL_GUARDED(clEnqueueWriteBuffer, (
-        queue, buf_b, /*blocking*/ CL_TRUE, /*offset*/ 0,
-        sizeN * sizeof(ELEMENT_TYPE), b,
-        0, NULL, NULL));
+  // CALL_CL_GUARDED(clEnqueueWriteBuffer, (
+  //       queue, buf_b, /*blocking*/ CL_TRUE, /*offset*/ 0,
+  //       sizeN * sizeof(ELEMENT_TYPE), b,
+  //       0, NULL, NULL));
 
   // --------------------------------------------------------------------------
   // run code on device
@@ -90,8 +91,15 @@ int main(int argc, char **argv)
     size_t local[]  = {1,1};
     size_t global[] = {n,n};
 
+    SET_1_KERNEL_ARG(knl_zero, buf_c);
+
   for (int trip = 0; trip < ntrips; ++trip)
   {
+    CALL_CL_GUARDED(clEnqueueNDRangeKernel,
+        (queue, knl_zero,
+         /*dimensions*/ 2, NULL, global, NULL,
+         0, NULL, NULL));
+
     CALL_CL_GUARDED(clEnqueueNDRangeKernel,
         (queue, knl,
          /*dimensions*/ 2, NULL, global, NULL,
