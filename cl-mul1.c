@@ -34,7 +34,7 @@ int main(int argc, char **argv)
   // allocate and initialize CPU memory
   // --------------------------------------------------------------------------
 
-  cl_long sizeN = n*n;
+  cl_uint sizeN = n*n;
   ELEMENT_TYPE *a = (ELEMENT_TYPE *) malloc(sizeof(ELEMENT_TYPE) * sizeN);
   if (!a) { perror("alloc x"); abort(); }
   ELEMENT_TYPE *b = (ELEMENT_TYPE *) malloc(sizeof(ELEMENT_TYPE) * sizeN);
@@ -51,12 +51,12 @@ int main(int argc, char **argv)
   // allocate device memory
   // --------------------------------------------------------------------------
   cl_int status;
-  cl_mem buf_a = clCreateBuffer(ctx, CL_MEM_READ_WRITE, 
-      sizeof(ELEMENT_TYPE) * sizeN, 0, &status);
+  cl_mem buf_a = clCreateBuffer(ctx, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR, 
+      sizeof(ELEMENT_TYPE) * sizeN, a, &status);
   CHECK_CL_ERROR(status, "clCreateBuffer");
 
-  cl_mem buf_b = clCreateBuffer(ctx, CL_MEM_READ_WRITE,
-      sizeof(ELEMENT_TYPE) * sizeN, 0, &status);
+  cl_mem buf_b = clCreateBuffer(ctx, CL_MEM_READ_WRITE | CL_MEM_COPY_HOST_PTR,
+      sizeof(ELEMENT_TYPE) * sizeN, b, &status);
   CHECK_CL_ERROR(status, "clCreateBuffer");
 
   cl_mem buf_c = clCreateBuffer(ctx, CL_MEM_READ_WRITE,
@@ -66,37 +66,40 @@ int main(int argc, char **argv)
   // --------------------------------------------------------------------------
   // transfer to device
   // --------------------------------------------------------------------------
-  CALL_CL_GUARDED(clEnqueueWriteBuffer, (
-        queue, buf_a, /*blocking*/ CL_TRUE, /*offset*/ 0,
-        sizeN * sizeof(ELEMENT_TYPE), a,
-        0, NULL, NULL));
+  // CALL_CL_GUARDED(clEnqueueWriteBuffer, (
+  //       queue, buf_a, /*blocking*/ CL_TRUE, /*offset*/ 0,
+  //       sizeN * sizeof(ELEMENT_TYPE), a,
+  //       0, NULL, NULL));
 
-  CALL_CL_GUARDED(clEnqueueWriteBuffer, (
-        queue, buf_b, /*blocking*/ CL_TRUE, /*offset*/ 0,
-        sizeN * sizeof(ELEMENT_TYPE), b,
-        0, NULL, NULL));
+  // CALL_CL_GUARDED(clEnqueueWriteBuffer, (
+  //       queue, buf_b, /*blocking*/ CL_TRUE, /*offset*/ 0,
+  //       sizeN * sizeof(ELEMENT_TYPE), b,
+  //       0, NULL, NULL));
 
   // --------------------------------------------------------------------------
   // run code on device
   // --------------------------------------------------------------------------
 
-  CALL_CL_GUARDED(clFinish, (queue));
+  // CALL_CL_GUARDED(clFinish, (queue));
 
   timestamp_type time1, time2;
   get_timestamp(&time1);
 
   for (int trip = 0; trip < ntrips; ++trip)
   {
-    SET_3_KERNEL_ARGS(knl, buf_a, buf_b, buf_c);
+    int ss = n;
+    SET_4_KERNEL_ARGS(knl, buf_a, buf_b, buf_c, ss);
+
     size_t globalWorkSize[] = {n,n};
+    size_t localWorkSize[] = {32,32};
     
     CALL_CL_GUARDED(clEnqueueNDRangeKernel,
         (queue, knl,
-         /*dimensions*/ 2, NULL, globalWorkSize, NULL, //gdim, ldim,
+         /*dimensions*/ 2, NULL, globalWorkSize, localWorkSize, //gdim, ldim,
          0, NULL, NULL));
   }
 
-  CALL_CL_GUARDED(clFinish, (queue));
+  // CALL_CL_GUARDED(clFinish, (queue));
 
   get_timestamp(&time2);
   printStatistics(time1, time2, ntrips, n);
