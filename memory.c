@@ -86,6 +86,10 @@ int main(int argc, char **argv)
   // --------------------------------------------------------------------------
   // transfer to device
   // --------------------------------------------------------------------------
+
+  timestamp_type time0, time3;
+  get_timestamp(&time0);
+  
   CALL_CL_GUARDED(clEnqueueWriteBuffer, (
         queue, buf_a, /*blocking*/ CL_TRUE, /*offset*/ 0,
         sizeN * sizeof(ELEMENT_TYPE), a,
@@ -105,21 +109,26 @@ int main(int argc, char **argv)
   timestamp_type time1, time2;
   get_timestamp(&time1);
 
+    // size_t globalWorkSize[] = {n,n};
+  size_t ldim[] = { 128 };
+  size_t gdim[] = { ((sizeN + ldim[0] - 1)/ldim[0])*ldim[0] };
+  printf("local=%ld\n", ldim[0]);
+  printf("group=%ld\n", gdim[0]);
+
+  SET_4_KERNEL_ARGS(knl, buf_a, buf_b, buf_c, sizeN);
+
   for (int trip = 0; trip < ntrips; ++trip)
   {
-    SET_3_KERNEL_ARGS(knl, buf_a, buf_b, buf_c);
-    size_t globalWorkSize[] = {n,n};
-    
     CALL_CL_GUARDED(clEnqueueNDRangeKernel,
         (queue, knl,
-         /*dimensions*/ 2, NULL, globalWorkSize, NULL, //gdim, ldim,
+         /*dimensions*/ 1, NULL, gdim, ldim,
          0, NULL, NULL));
   }
 
   CALL_CL_GUARDED(clFinish, (queue));
 
   get_timestamp(&time2);
-  double elapsed = timestamp_diff_in_seconds(time1,time2);
+  double elapsed = timestamp_diff_in_seconds(time0,time2);
   printf("%12f s\n", elapsed);
   printStatistics(time1, time2, ntrips, n);
 

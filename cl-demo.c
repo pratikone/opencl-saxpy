@@ -87,6 +87,8 @@ int main(int argc, char **argv)
     SET_4_KERNEL_ARGS(knl, buf_a, buf_b, buf_c, n);
     size_t ldim[] = { 128 };
     size_t gdim[] = { ((n + ldim[0] - 1)/ldim[0])*ldim[0] };
+
+    printf("%ld %ld\n", ldim[0], gdim[0]);
     CALL_CL_GUARDED(clEnqueueNDRangeKernel,
         (queue, knl,
          /*dimensions*/ 1, NULL, gdim, ldim,

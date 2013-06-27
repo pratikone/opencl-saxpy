@@ -1,6 +1,6 @@
 #define ELEMENT_TYPE float
 
-__kernel void sum(
+__kernel void sum2(
     __global const ELEMENT_TYPE *A,
     __global const ELEMENT_TYPE *B,
     __global ELEMENT_TYPE *C)
@@ -9,4 +9,15 @@ __kernel void sum(
   long j = get_global_id(1);
   long N = get_global_size(0);
   C[i * N + j] = A[i * N + j] + B[i * N + j];
+}
+
+__kernel void sum(
+    __global const ELEMENT_TYPE *A,
+    __global const ELEMENT_TYPE *B,
+    __global ELEMENT_TYPE *C,
+    long N)
+{
+  long gid = get_global_id(0);
+  if (gid < N)
+    C[gid] = A[gid] + B[gid];
 }
