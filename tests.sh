@@ -3,7 +3,7 @@ N=40
 if [ ! -z $1 ]; then
     N=$1
 fi
-T=50
+T=20
 B=$((N/4))
 
 MEM=$(echo "$N*$N*4*3/1024/1024" | bc -l | awk '{printf "%08f\n", $0}')

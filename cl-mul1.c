@@ -80,7 +80,7 @@ int main(int argc, char **argv)
   // run code on device
   // --------------------------------------------------------------------------
 
-  // CALL_CL_GUARDED(clFinish, (queue));
+  CALL_CL_GUARDED(clFinish, (queue));
 
   timestamp_type time1, time2;
   get_timestamp(&time1);
@@ -99,7 +99,7 @@ int main(int argc, char **argv)
          0, NULL, NULL));
   }
 
-  // CALL_CL_GUARDED(clFinish, (queue));
+  CALL_CL_GUARDED(clFinish, (queue));
 
   get_timestamp(&time2);
   printStatistics(time1, time2, ntrips, n);

@@ -104,6 +104,8 @@ int main(int argc, char **argv)
         (queue, knl,
          /*dimensions*/ 2, NULL, global, NULL,
          0, NULL, NULL));
+
+    CALL_CL_GUARDED(clFlush, (queue));
   }
 
   CALL_CL_GUARDED(clFinish, (queue));
