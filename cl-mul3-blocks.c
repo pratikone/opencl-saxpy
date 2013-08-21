@@ -3,21 +3,22 @@
 #include "cl-helper.h"
 
 
-#define BLOCK_SIZE 4
+//#define BLOCK_SIZE 4
 
 unsigned int uiWA, uiHA, uiWB, uiHB, uiWC, uiHC;
 
 
 int main(int argc, char **argv)
 {
-  if (argc != 3)
+  if (argc != 4)
   {
-    fprintf(stderr, "USO: %s  <dimension>  <vueltas>\n", argv[0]);
+    fprintf(stderr, "USO: %s  <dimension>  <vueltas>  <bloque>\n", argv[0]);
     abort();
   }
 
   const cl_long n = atol(argv[1]);
   const int ntrips = atoi(argv[2]);
+  const int BLOCK_SIZE = atoi(argv[3]);
 
   cl_context ctx;
   cl_command_queue queue;
@@ -113,9 +114,10 @@ int main(int argc, char **argv)
   clSetKernelArg(knl, 2, sizeof(cl_mem), (void *) &d_B);
   clSetKernelArg(knl, 3, sizeof(ELEMENT_TYPE) * BLOCK_SIZE *BLOCK_SIZE, 0 );
   clSetKernelArg(knl, 4, sizeof(ELEMENT_TYPE) * BLOCK_SIZE *BLOCK_SIZE, 0 );
-  clSetKernelArg(knl, 5, sizeof(cl_int), (void *) &uiWA);
-  clSetKernelArg(knl, 6, sizeof(cl_int), (void *) &uiWB);
-  clSetKernelArg(knl, 7, sizeof(cl_int), (void *) &worksize);
+  clSetKernelArg(knl, 5, sizeof(cl_int), (void *) &BLOCK_SIZE);
+  clSetKernelArg(knl, 6, sizeof(cl_int), (void *) &uiWA);
+  clSetKernelArg(knl, 7, sizeof(cl_int), (void *) &uiWB);
+  clSetKernelArg(knl, 8, sizeof(cl_int), (void *) &worksize);
 
     
   // Launch kernels on devices

@@ -13,10 +13,10 @@
  * Device code.
  */
 
-#define BLOCK_SIZE 4
+// #define BLOCK_SIZE 4
 
-#define AS(i, j) As[j + i * BLOCK_SIZE]
-#define BS(i, j) Bs[j + i * BLOCK_SIZE]
+// #define AS(i, j) As[j + i * BLOCK_SIZE]
+// #define BS(i, j) Bs[j + i * BLOCK_SIZE]
 
 ///////////////////////////////////////////////////////////////////////////////
 //! Matrix multiplication on the device: C = A * B
@@ -24,7 +24,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 __kernel void
 mul( __global float* C, __global float* A, __global float* B, 
-	   __local float* As, __local float* Bs, int uiWA, int uiWB, int trueLocalSize1)
+	   __local float* As, __local float* Bs, int BLOCK_SIZE, int uiWA, int uiWB, int trueLocalSize1)
 {
     // Block index
     int bx = get_group_id(0);
@@ -62,8 +62,11 @@ mul( __global float* C, __global float* A, __global float* B,
         // Load the matrices from device memory
         // to shared memory; each thread loads
         // one element of each matrix
-        AS(ty, tx) = A[a + uiWA * ty + tx];
-        BS(ty, tx) = B[b + uiWB * ty + tx];
+        
+        //AS(ty, tx) =
+        As[tx + ty * BLOCK_SIZE] = A[a + uiWA * ty + tx];
+        //BS(ty, tx) =
+        Bs[tx + ty * BLOCK_SIZE] = B[b + uiWB * ty + tx];
 	
         // Synchronize to make sure the matrices are loaded
         barrier(CLK_LOCAL_MEM_FENCE);
@@ -73,7 +76,8 @@ mul( __global float* C, __global float* A, __global float* B,
         // of the block sub-matrix        
         #pragma unroll
         for (int k = 0; k < BLOCK_SIZE; ++k)
-            Csub += AS(ty, k) * BS(k, tx);
+            // Csub += AS(ty, k) * BS(k, tx);
+            Csub += As[k + ty * BLOCK_SIZE] * Bs[tx + k * BLOCK_SIZE];
 
         // Synchronize to make sure that the preceding
         // computation is done before loading two new

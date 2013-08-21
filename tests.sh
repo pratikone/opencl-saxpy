@@ -46,4 +46,4 @@ bin/cl-mul2-saxpy $N $T
 
 echo ""
 echo "----- 6) OpenCL Multiplication using Blocks:"
-bin/cl-mul3-blocks $N $T
+bin/cl-mul3-blocks $N $T $B
