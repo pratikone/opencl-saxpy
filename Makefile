@@ -1,5 +1,5 @@
 OUT_DIR = ./bin
-EXECUTABLES = cl-demo print-devices cl-mul0 cl-mul0-saxpy cl-mul0-blocks cl-mul1 cl-mul2-saxpy cl-mul3-blocks memory
+EXECUTABLES = cl-demo print-devices cl-mul0 cl-mul0-saxpy cl-mul0-blocks cl-mul1 cl-mul2-saxpy cl-mul3-blocks memory membench
 
 all: $(EXECUTABLES:%=$(OUT_DIR)/%)
 
@@ -37,6 +37,9 @@ $(OUT_DIR)/cl-mul3-blocks: cl-mul3-blocks.c cl-helper.c
 
 $(OUT_DIR)/memory: memory.c cl-helper.c
 	gcc $^ $(CL_CFLAGS) $(CL_LDFLAGS) -std=gnu99 -lrt -lOpenCL -o$@
+
+$(OUT_DIR)/membench: membench.c
+	gcc $^ $(CL_CFLAGS) $(CL_LDFLAGS) -std=gnu99 -lrt -o$@
 
 clean:
 	rm -f $(EXECUTABLES:%=$(OUT_DIR)/%) *.o
